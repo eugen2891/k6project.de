@@ -4,8 +4,9 @@ import os
 import sys
 
 def html_safe(str):
-    res = str.replace("<", "&lt;")
+    res = str.replace("&", "&amp;")
     res = res.replace(">", "&gt;")
+    res = res.replace("<", "&lt;")
     return res
 
 def make_heading(tline):
