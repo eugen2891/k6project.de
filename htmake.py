@@ -7,6 +7,8 @@ def html_safe(str):
     res = str.replace("&", "&amp;")
     res = res.replace(">", "&gt;")
     res = res.replace("<", "&lt;")
+    res = res.decode("utf-8")
+    res = res.replace(unichr(252), "&uuml;")
     return res
 
 def make_heading(tline):
