@@ -11,7 +11,7 @@ for (FAssetData& AssetData : AllBlueprints)
     UObject* AssetObject = AssetData.GetAsset();
     if (UBlueprint* Blueprint = Cast<UBlueprint>(AssetObject))
     {
-        if (Blueprint->BlueprintType == BPTYPE_Normal || 
+        if (Blueprint->BlueprintType == BPTYPE_Normal ||
             Blueprint->BlueprintType == BPTYPE_Const)
         {
             ScalePositions(Blueprint, Scale);
