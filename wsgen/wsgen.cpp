@@ -5,6 +5,8 @@
 
 struct page_template
 {
+    std::string title, preface;
+    unsigned long long timestamp = 0;
     std::filesystem::path src_path;
     std::filesystem::path rel_path;
     std::filesystem::path out_path;
@@ -12,6 +14,7 @@ struct page_template
 
 void text_to_htm(char* dst, const char* src, bool literal)
 {
+    bool emphasis = false;
     const unsigned char* pos = (const unsigned char*)src;
     while (*pos)
     {
@@ -43,8 +46,31 @@ void text_to_htm(char* dst, const char* src, bool literal)
             }
             break;
         default:
-            *dst = (char)*pos;
-            ++dst;
+            if (*pos == '@' && !literal)
+            {
+                switch (*++pos)
+                {
+                case '!':
+                    if (!emphasis)
+                    {
+                        sprintf(dst, "<em>");
+                        dst += 4;
+                        emphasis = true;
+                    }
+                    else
+                    {
+                        sprintf(dst, "</em>");
+                        dst += 5;
+                        emphasis = false;
+                    }
+                    break;
+                }
+            }
+            else
+            {
+                *dst = (char)*pos;
+                ++dst;
+            }
         }
         ++pos;
     }
@@ -65,7 +91,7 @@ void generate_pages(std::vector<page_template>& templates, const char* header, c
         if (header) output << header;
         while (input.good())
         {
-            input.getline(str_buffer, UINT16_MAX);
+            input.getline(str_buffer, UINT16_MAX);            
             if (!*str_buffer)
                 continue;
             if (out_literal)
@@ -100,11 +126,21 @@ void generate_pages(std::vector<page_template>& templates, const char* header, c
                     }
                     if (level > 5) level = 5;
                     output << "<h" << level << ">" << str <<"</h" << level << ">\n";
+                    if (level == 1 && htpl.title.empty())
+                        htpl.title = str;
+                }
+                else if (*str_buffer == '?')
+                {
+                    unsigned long long  y, m, d, h, n, timestamp = 0;
+                    sscanf(str_buffer + 1, "%llu.%llu.%llu %llu:%llu", &y, &m, &d, &h, &n);
+                    htpl.timestamp = n | (h << 8) | (d << 16) | (m << 24) | (y << 32);
                 }
                 else
                 {
                     text_to_htm(htm_buffer, str_buffer, out_literal);
                     output << "<p>" << htm_buffer << "</p>\n";
+                    if (htpl.preface.empty())
+                        htpl.preface = htm_buffer;
                 }
             }
         }

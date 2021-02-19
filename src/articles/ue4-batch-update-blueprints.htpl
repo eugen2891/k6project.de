@@ -1,6 +1,7 @@
+?2018.01.21 18:01
 !UE4: Batch update of blueprint classes
-This article is based on one of my recent assignments at work. The idea is: we have a large amount of blueprint classes in the UE4 project, and each of them contains a fair amount of different components - and now we need to iterate through all of them and modify every relevant component in some way (the nature of exact modification is not important, for this article I have chosen to simply scale position of all USceneComponent instances by some factor).
-Enumerating assets in the project is done relatively straightforward using AssetRegistry module (make sure to add it to project dependencies in Build.cs file). Here is simplified example code that accomplishes the task at hand:
+This article is based on one of my recent assignments at work. The idea is: we have a large amount of blueprint classes in the UE4 project, and each of them contains a fair amount of different components - and now we need to iterate through all of them and modify every relevant component in some way (the exact nature of modification is not important, for this article I have chosen to simply scale position of all @!USceneComponent@! instances by some factor).
+Enumerating assets in the project is done relatively straightforward using @!AssetRegistry@! module (make sure to add it to project dependencies in @!Build.cs@! file). Here is simplified example code that accomplishes the task at hand:
 <<<
 const Scale = 0.01f;
 TArray<FAssetData> AllBlueprints;
@@ -19,7 +20,7 @@ for (FAssetData& AssetData : AllBlueprints)
     }
 }
 >>>
-Initially I though it sufficient to get the default object of a class that blueprint generates and update every USceneComponent it contains, like this:
+Initially I though it sufficient to get the default object of a class that blueprint generates and update every @!USceneComponent@! it contains, like this:
 <<<
 void ScalePositions(UBlueprint* Blueprint, float Scale)
 {
@@ -36,8 +37,8 @@ void ScalePositions(UBlueprint* Blueprint, float Scale)
     }
 }
 >>>
-After running the code above and checking the blueprints afterwards, a problem became apparent: only components inherited from parent C++ classes where modified, and those created by the blueprint itself were left untouched. I have spent quiet some time digging into it, in the same time posting a support question via corporate UDN account. I went as far as looking into how blueprint editor behaves when creating a tree of components - and that is how UBlueprint::SimpleConstructionScript and its collection of USCS_Node objects came into play. Looking at it now, it seems like an obvious place to search for it, but back at the time - well, probably I am simply slow ;)
-So, I ended up adding the following code right after for-loop in ScalePositions() function:
+After running the code above and checking the blueprints afterwards, a problem became apparent: only components inherited from parent C++ classes where modified, and those created by the blueprint itself were left untouched. I have spent quiet some time digging into it, in the same time posting a support question via corporate UDN account. I went as far as looking into how blueprint editor behaves when creating a tree of components - and that is how @!UBlueprint::SimpleConstructionScript@! and its collection of @!USCS_Node@! objects came into play. Looking at it now, it seems like an obvious place to search for it, but back at the time - well, probably I am simply slow ;)
+So, I ended up adding the following code right after for-loop in @!ScalePositions()@! function:
 <<<
 const TArray<USCS_Node*>& BPNodes = Blueprint->SimpleConstructionScript->GetAllNodes();
 for (USCS_Node* Node : BPNodes)
@@ -48,7 +49,7 @@ for (USCS_Node* Node : BPNodes)
     }
 }
 >>>
-After going through previous step, I found out that there was yet another piece of the puzzle missing: in case, when a blueprint class is derived not from C++, but from another blueprint, blueprint-spawned components of the parent class are still left out! After another lengthy round of digging through source code, UDN and C++ API docs, I have finally got to a UInheritableComponentHandler, which turned out to be a container of exactly that. Here goes the final piece of code to be added into ScalePositions(), right after previously added fragment ends:
+After going through previous step, I found out that there was yet another piece of the puzzle missing: in case, when a blueprint class is derived not from C++, but from another blueprint, blueprint-spawned components of the parent class are still left out! After another lengthy round of digging through source code, UDN and C++ API docs, I have finally got to a @!UInheritableComponentHandler@!, which turned out to be a container of exactly that. Here goes the final piece of code to be added into @!ScalePositions()@!, right after previously added fragment ends:
 <<<
 TArray<UActorComponent*> InheritableComponents;
 UInheritableComponentHandler* ICHandler = Target->GetInheritableComponentHandler(true);

@@ -10,7 +10,9 @@
   pre { font-family: "Lucida Console", Monaco, monospace; background: #333333; color: #ffffff; padding: 10px; font-size: 90%; }
   .top { height: 85px; }
   .title { margin: 0; cursor: pointer; font-family: Helvetica, Arial, sans-serif; font-weight: 300; font-size: 28px; letter-spacing: 1px; }
-  .heading { margin: 1px 0 0 0; font-size: 90%; } header { border-bottom: 1px solid #eeeeee; }
+  .heading { margin: 1px 0 0 0; font-size: 90%; } 
+  header { border-bottom: 1px solid #eeeeee; }
+  footer { border-top: 1px solid #eeeeee; padding-top: 15px; padding-bottom: 15px; text-align: center; margin-top: 40px;}
   a { color: #333; font-weight: 300; }
   nav a { margin-left: 20px; text-align: right; letter-spacing: 1px; text-decoration: none; }
   nav { float: right; margin: 6px 0 0 0; }
@@ -25,6 +27,6 @@
 <h1 class="title">Eugen Brusilovskyy</h1>
 <p class="heading">Game engine/tools programmer @&nbsp;<a href="https://www.dsfishlabs.com/">DeepSilver FISHLABS</a></p>
 </div>
-<nav><a href="/">Articles</a><a href="https://twitter.com/Eugen2891">Twitter</a><a href="/about.html">About</a></nav>
+<nav><a href="/">Blog</a><a href="https://twitter.com/Eugen2891">Twitter</a><a href="/about.html">About</a></nav>
 </div>
 </header>
